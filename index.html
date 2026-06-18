@@ -89,6 +89,10 @@
         Add Employee
     </button>
 
+    <button onclick="removeEmployee()">
+        Remove Selected Employee
+    </button>
+
 </div>
 
 <div id="instructions">
@@ -152,6 +156,18 @@ function addEmployee(defaultName = null) {
    if (!defaultName) {
     input.value = "";
 }
+}
+
+
+function removeEmployee() {
+
+    if (!selectedEmployee) {
+        alert("Select an employee first.");
+        return;
+    }
+
+    selectedEmployee.remove();
+    selectedEmployee = null;
 }
 
 warehouse.addEventListener("click", function(e) {
