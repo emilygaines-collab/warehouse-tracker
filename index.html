@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Warehouse Employee Tracker</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+        }
+
+        #toolbar {
+            background: white;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,.1);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #warehouse {
+            position: relative;
+            width: 1600px;
+            height: 1000px;
+            margin: 20px auto;
+
+            background-image: lightblue;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+
+            border: 2px solid #ccc;
+            background-color: white;
+        }
+
+        .employee {
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: dodgerblue;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            transition:
+                left .5s ease,
+                top .5s ease;
+        }
+
+        .employee.selected {
+            background: crimson;
+            transform: scale(1.2);
+        }
+
+        .label {
+            position: absolute;
+            top: 50px;
+            left: -40px;
+            width: 120px;
+            text-align: center;
+            color: black;
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        #instructions {
+            padding: 10px 20px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div id="toolbar">
+
+    <input
+        id="employeeName"
+        type="text"
+        placeholder="Employee Name"
+    >
+
+    <button onclick="addEmployee()">
+        Add Employee
+    </button>
+
+</div>
+
+<div id="instructions">
+    1. Add an employee<br>
+    2. Click their icon to select them<br>
+    3. Click anywhere on the warehouse map to move them
+</div>
+
+<div id="warehouse"></div>
+
+<script>
+
+const warehouse = document.getElementById("warehouse");
+
+let selectedEmployee = null;
+
+
+function addEmployee(defaultName = null) {
+
+    const input =
+        document.getElementById("employeeName");
+
+    const name =
+        defaultName || input.value.trim();
+
+    if (name === "")
+        return;
+
+    if (document.getElementById(name))
+        return;
+
+    const employee =
+        document.createElement("div");
+
+    employee.className = "employee";
+    employee.id = name;
+
+    employee.style.left = "50px";
+    employee.style.top = "50px";
+
+    employee.innerHTML =
+        name.charAt(0).toUpperCase() +
+        `<div class="label">${name}</div>`;
+
+    employee.addEventListener("click", function(e) {
+
+        e.stopPropagation();
+
+        document
+            .querySelectorAll(".employee")
+            .forEach(emp =>
+                emp.classList.remove("selected")
+            );
+
+        employee.classList.add("selected");
+        selectedEmployee = employee;
+    });
+
+    warehouse.appendChild(employee);
+
+   if (!defaultName) {
+    input.value = "";
+}
+}
+
+warehouse.addEventListener("click", function(e) {
+
+    if (!selectedEmployee)
+        return;
+
+    const rect =
+        warehouse.getBoundingClientRect();
+
+    const x =
+        e.clientX - rect.left - 22;
+
+    const y =
+        e.clientY - rect.top - 22;
+
+    selectedEmployee.style.left = x + "px";
+    selectedEmployee.style.top = y + "px";
+
+    selectedEmployee.classList.remove("selected");
+    selectedEmployee = null;
+});
+
+addEmployee("Emily");
+addEmployee("John");
+addEmployee("Sarah");
+addEmployee("Mike");
+
+</script>
+
+</body>
+</html>
