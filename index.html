@@ -191,7 +191,6 @@ warehouse.addEventListener("click", function(e) {
     selectedEmployee = null;
 });
 
-
 async function updateEmployeeLocation() {
     try {
         const response =
@@ -200,27 +199,26 @@ async function updateEmployeeLocation() {
         const data = await response.json();
 
         document.getElementById("debug").innerText =
-    JSON.stringify(data);
+            JSON.stringify(data);
 
-const employee =
-    document.getElementById(data.name);
+        const employee =
+            document.getElementById(data.name);
 
-if (!employee || data.rssi == null)
-    return;
+        if (!employee || data.rssi == null)
+            return;
 
-// TEMPORARY TEST POSITIONS
-if (data.rssi > -50) {
-    employee.style.left = "200px";
-    employee.style.top = "200px";
-}
-else if (data.rssi > -65) {
-    employee.style.left = "500px";
-    employee.style.top = "300px";
-}
-else {
-    employee.style.left = "800px";
-    employee.style.top = "400px";
-}
+        if (data.rssi > -50) {
+            employee.style.left = "200px";
+            employee.style.top = "200px";
+        }
+        else if (data.rssi > -65) {
+            employee.style.left = "500px";
+            employee.style.top = "300px";
+        }
+        else {
+            employee.style.left = "800px";
+            employee.style.top = "400px";
+        }
 
     } catch (err) {
         document.getElementById("debug").innerText =
