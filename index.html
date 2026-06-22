@@ -191,6 +191,47 @@ warehouse.addEventListener("click", function(e) {
     selectedEmployee = null;
 });
 
+
+async function updateEmployeeLocation() {
+    try {
+        const response =
+            await fetch("http://127.0.0.1:5000/location");
+
+        const data = await response.json();
+
+        document.getElementById("debug").innerText =
+    JSON.stringify(data);
+
+const employee =
+    document.getElementById(data.name);
+
+if (!employee || data.rssi == null)
+    return;
+
+// TEMPORARY TEST POSITIONS
+if (data.rssi > -50) {
+    employee.style.left = "200px";
+    employee.style.top = "200px";
+}
+else if (data.rssi > -65) {
+    employee.style.left = "500px";
+    employee.style.top = "300px";
+}
+else {
+    employee.style.left = "800px";
+    employee.style.top = "400px";
+}
+
+    } catch (err) {
+        document.getElementById("debug").innerText =
+            "ERROR: " + err;
+    }
+}
+
+
+setInterval(updateEmployeeLocation, 2000);
+
+
 addEmployee("Emily");
 addEmployee("John");
 addEmployee("Sarah");
@@ -199,20 +240,23 @@ addEmployee("Mike");
 </script>
 
 </body>
+
+
+
+
+
+
+<div id="warehouse"></div>
+<div id="debug"
+     style="
+        width:1600px;
+        margin:20px auto;
+        padding:15px;
+        background:#f3f4f6;
+        border:1px solid #ccc;
+        font-family:monospace;
+     ">
+Waiting for data...
+</div>
+
 </html>
-
-
-
-<script>
-async function getLocation() {
-    const response = await fetch(
-        "http://127.0.0.1:5000/location"
-    );
-
-    const data = await response.json();
-
-    console.log(data);
-}
-
-setInterval(getLocation, 2000);
-</script>
