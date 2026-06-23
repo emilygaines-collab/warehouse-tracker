@@ -262,19 +262,26 @@ async function updateEmployeeLocation() {
         const data = await response.json();
 
         document.getElementById("debug").innerText =
-            JSON.stringify(data);
+            JSON.stringify(data, null, 2);
+
+        for (const name in data) {
 
         const employee =
-            document.getElementById(data.name);
+            document.getElementById(name);
 
-        if (!employee || data.rssi == null)
-            return;
+        if (!employee)
+            continue;
 
-        if (data.rssi > -50) {
+        const rssi = data[name].rssi;
+
+        if (rssi == null)
+            continue;
+
+        if (rssi > -50) {
             employee.style.left = "200px";
             employee.style.top = "200px";
         }
-        else if (data.rssi > -65) {
+        else if (rssi > -65) {
             employee.style.left = "500px";
             employee.style.top = "300px";
         }
@@ -282,6 +289,7 @@ async function updateEmployeeLocation() {
             employee.style.left = "800px";
             employee.style.top = "400px";
         }
+    }
 
     } catch (err) {
         document.getElementById("debug").innerText =
@@ -294,9 +302,9 @@ setInterval(updateEmployeeLocation, 2000);
 
 
 addEmployee("Emily");
-addEmployee("John");
-addEmployee("Sarah");
-addEmployee("Mike");
+addEmployee("Candace");
+addEmployee("Madeline");
+addEmployee("Kyle");
 
 </script>
 
