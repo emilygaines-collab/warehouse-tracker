@@ -49,3 +49,4 @@ def run_scanner():
 threading.Thread(target=run_scanner, daemon=True).start()
 
 app.run(host="0.0.0.0", port=5000)
+
