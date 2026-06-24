@@ -1,8 +1,5 @@
 import asyncio
 import threading
-import sqlite3
-import os
-
 from bleak import BleakScanner
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -13,49 +10,41 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-print("LOADING NEW SERVER")
-print("RUNNING FILE:", os.path.abspath(__file__))
-
 # -----------------------------
-# DATABASE
-# -----------------------------
-def get_db():
-    return sqlite3.connect("warehouse.db")
-
-# -----------------------------
-# IN-MEMORY EMPLOYEE DATA
+# IN-MEMORY DATA (NO DB)
 # -----------------------------
 employees = {
-    "Emily": {"rssi": None},
-    "Candace": {"rssi": None},
-    "Madeline": {"rssi": None}
+    "Emily": {"rssi": None, "tag_id": None},
+    "Candace": {"rssi": None, "tag_id": None},
+    "Madeline": {"rssi": None, "tag_id": None}
 }
 
 # -----------------------------
-# BLE SCANNER
+# BLE SCANNER (DEMO SAFE)
 # -----------------------------
 async def scanner():
     while True:
-        devices = await BleakScanner.discover(timeout=2, return_adv=True)
+        devices = await BleakScanner.discover(timeout=3, return_adv=True)
 
         for address, (device, advertisement) in devices.items():
 
-            if not device.name:
-                continue
+            name = device.name or advertisement.local_name or "Unknown"
 
-            if device.name == "Em":
+            print(f"Found: {name} | {address} | RSSI: {advertisement.rssi}")
+
+            if "Em" in name:
                 employees["Emily"]["rssi"] = advertisement.rssi
-                print("Emily:", advertisement.rssi)
+                print("Emily updated")
 
-            elif device.name == "Madeline":
+            elif "Madeline" in name:
                 employees["Madeline"]["rssi"] = advertisement.rssi
-                print("Madeline:", advertisement.rssi)
+                print("Madeline updated")
 
-            elif device.name == "This Device":
+            elif "Candace" in name:
                 employees["Candace"]["rssi"] = advertisement.rssi
-                print("Candace:", advertisement.rssi)
+                print("Candace updated")
 
-        await asyncio.sleep(10)
+        await asyncio.sleep(5)
 
 def run_scanner():
     asyncio.run(scanner())
@@ -68,7 +57,6 @@ threading.Thread(target=run_scanner, daemon=True).start()
 # -----------------------------
 @app.route("/location")
 def location():
-    print("API returning:", employees)
     return jsonify(employees)
 
 @app.route("/assign_tag", methods=["POST"])
@@ -78,16 +66,12 @@ def assign_tag():
     employee_name = data["employee_name"]
     tag_id = data["tag_id"]
 
-    conn = get_db()
-    cursor = conn.cursor()
+    if employee_name in employees:
+        employees[employee_name]["tag_id"] = tag_id
+    else:
+        employees[employee_name] = {"rssi": None, "tag_id": tag_id}
 
-    cursor.execute("""
-        INSERT INTO employees (employee_name, tag_id)
-        VALUES (?, ?)
-    """, (employee_name, tag_id))
-
-    conn.commit()
-    conn.close()
+    print("Assigned tag:", employee_name, tag_id)
 
     return jsonify({"success": True})
 
@@ -95,4 +79,5 @@ def assign_tag():
 # START SERVER
 # -----------------------------
 if __name__ == "__main__":
+    print("Starting BLE Flask server...")
     app.run(host="0.0.0.0", port=5000, debug=True)
